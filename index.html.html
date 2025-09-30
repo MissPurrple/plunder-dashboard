@@ -5,33 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Plunder Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <style>
         body { font-family: 'Trebuchet MS', sans-serif; background: linear-gradient(to bottom, #1a2332, #1e3349); }
     </style>
 </head>
 <body class="min-h-screen text-white p-6">
     <div id="app" class="max-w-6xl mx-auto">
-        <div class="flex items-center justify-center min-h-screen text-xl">
-            <div class="text-center">
-                <h2 class="text-2xl mb-4">Upload your CSV file</h2>
-                <input type="file" id="csvFile" accept=".csv" class="px-4 py-2 rounded" style="background: #253345; border: 1px solid #2d3f54">
-            </div>
-        </div>
+        <div class="flex items-center justify-center min-h-screen text-xl">Loading plunder data...</div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <script>
         let allData = [];
         let displayData = [];
         let searchResult = null;
 
-        document.getElementById('csvFile').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                const csvData = event.target.result;
+        // Load CSV file from same folder
+        fetch('Copy of Plunder  Plunder.csv')
+            .then(response => response.text())
+            .then(csvData => {
                 const parsed = Papa.parse(csvData, {
                     header: true,
                     dynamicTyping: true,
@@ -47,9 +39,10 @@
                 
                 displayData = allData.slice(0, 100);
                 render();
-            };
-            reader.readAsText(file);
-        });
+            })
+            .catch(error => {
+                document.getElementById('app').innerHTML = '<div class="flex items-center justify-center min-h-screen"><p class="text-red-400">Error loading data. Make sure the CSV file is in the same folder.</p></div>';
+            });
 
         function formatAddress(address) {
             if (!address || address.length < 10) return address;
